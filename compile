@@ -1,0 +1,2 @@
+gcc -std=c99 wc.c main1.c -o main1 -lm
+gcc -std=c99 wc.c main2.c -o main2 -lm
