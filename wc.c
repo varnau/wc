@@ -1,15 +1,22 @@
 #include "wc.h"
 
+
 //----------------------------------------------------------
 // wc functions
 //----------------------------------------------------------
 
+
+// ---------------------------------------------------------
+// wc_new: create a data structure
+// -------
 wc_t *wc_new(int k) {
   int size;
   wc_t *wc = (wc_t *) calloc(1, sizeof(wc_t));
   if (wc) {
     size = pow(4, k);
     wc->nodes = calloc(size, sizeof(l_node_t));
+
+
     if (wc->nodes) {
       wc->k = k;
       wc->num_words = size;
@@ -19,9 +26,11 @@ wc_t *wc_new(int k) {
   }
   return wc;
 }
-
 //----------------------------------------------------------
 
+// --------------------------------------------------------
+// wc_free : free memory for a data structure
+// --------
 void wc_free(wc_t *wc) {
   if (wc) {
     l_node_t *node, *next_node;
@@ -47,6 +56,8 @@ void wc_free(wc_t *wc) {
 	// restore node
 	node = next_node;
       }
+      // free frecuency words
+      free(frec);
     }
     free(wc);
   }
