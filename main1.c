@@ -3,6 +3,18 @@
 
 #include "wc.h"
 
+
+//--> longitud string READ
+#define SSTT    30000
+#define SSTTMINI   80
+
+#define LETRAS             4  // Es el numero de NUCLEOTIDOS
+#define MAX_SECU       100    // NUMERO DE SECUENCIAS --> pasar a lista ligada
+#define BARRA              50
+#define UNKBYTE          1024
+#define UNMEGA        1048576
+
+
 void  veo_syntax(char *);
 
 //----------------------------------------------------------
@@ -14,9 +26,9 @@ void main(int arg, char *argv[]) {
   char      caracter;
   int       i, j, aux;
  
-  int  *tabla;  // number of sequence
-  struct l_node  **, *ppunt, *paux;
-  struct l_pos   *p_pos;
+  strict wc_t   wc;
+  struct l_node *ppunt, *paux;
+  struct l_pos  *p_pos;
   
   double    aux_double;
   int       palabras1=0;
@@ -34,7 +46,7 @@ void main(int arg, char *argv[]) {
   int            pos;
   char           ficha[82];
  
-  struct l_ss_t  *num_secu;
+  struct l_numss  *num_secu;
   
   int       secuencia=0, max_comen=0;
  
@@ -49,7 +61,7 @@ void main(int arg, char *argv[]) {
   int   **ta_co;  //--> tabla de coincidencias entre READs.
   int   n_tc;     //--> contador maximo del arrar ta_co[]
  
-  int   PALABRA;
+  //  int   PALABRA;
  
   //--> para al final quitar
   char  linea[SSTT];
@@ -108,22 +120,42 @@ void main(int arg, char *argv[]) {
 
   //============    KK : tamanyo de palabra   ==========================
 
-  PALABRA = atoi(argv [3]);     //**************  Tamaño de palabra    *******
-  if ( (PALABRA<6) || (PALABRA>15) ) {
-    printf ("\n KK = [6, 15]\n");
+  WORD = atoi(argv [3]);     //**************  Tamaño de palabra    *******
+  if ( (WORD<6) || (WORD>15) ) {
+    printf ("\n K = [6, 15]\n");
     exit(0);
   }
 
+  //========================================================================
+  //**********  Reservo memoria para las READ 
+  ss1 =  (char *) malloc(SSTT * sizeof(char));
+  if (ss1== NULL){
+    printf("\n memory allocation failed.\n");
+    exit(EXIT_FAILURE);
+  }
+        
+  //**********  Reservo memoria para nombre de secuencias
+  ss2 =  (char *) malloc(SSTTMINI * sizeof(char));
+  if (ss2== NULL){
+    printf("\n memory allocation failed.\n");
+    exit(EXIT_FAILURE);
+  }        
 
 
+  int k;
+  k = WORD;
 
-
-
-  int k = 10;
-
-
-
+  // Reservo la estructura de datos global:
   wc_t *wc = wc_new(k);
+
+
+
+  printf ("\n==================================================");
+
+
+
+
+
 
 
 

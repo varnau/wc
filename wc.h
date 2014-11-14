@@ -1,22 +1,24 @@
 #ifndef _WC_H
 #define _WC_H
 
-
 //----------------------------------------------------------
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 //---------------------------------------------------------
+
+/******************************************
 // 4 nucleotides
 #define LETRAS  4
 #define BARRA              50
 #define UNKBYTE          1024
-#define UNMEGA        1048576
+#define UNMEGA        1048576                                                                  
 
 // max size of strings
-#define SSTT    50000  // for a read
-#define STMINI     80  // head of a read
+#define SSTT    80000  // for a read
+#define STMINI     98  // head of a read
+*********************************************/
 
 // To read FASTQ
 #define MAYOR         62
@@ -72,19 +74,23 @@ typedef struct wc {
   int k;
   int num_words;
   l_node_t **nodes;
-  size_t   *frec;
+  size_t   *table;
 } wc_t;
 // ----------------------------------------------------------------
 
 // ----------------------------------------------------------------
 // l_ss_t : sequence information
 // ------
-// size  : number of nucleotides, size of sequence
-// nom   : first lines of sequence (comment)
+// nom_seq   : first lines of sequence (comment)
+// sequence  : suquence of bases
+// size_seq  : sequence size
+// offset    : sequence position in the FASTQ file
 // ------
-typedef struct l_numss {
-  unsigned int size; 
-  char nom[STMINI];
+typedef struct l_numss { 
+  char *nom_seq;
+  char *sequence; //--> NOT: too much information
+  size_t  size_seq;
+  size_t  offset;    //--> not used
 } l_ss_t;
 // ---------------------------------------------------------------
 

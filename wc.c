@@ -11,16 +11,22 @@
 // -------
 wc_t *wc_new(int k) {
   int size;
+  int i;
+
   wc_t *wc = (wc_t *) calloc(1, sizeof(wc_t));
   if (wc) {
     size = pow(4, k);
-    wc->nodes = calloc(size, sizeof(l_node_t));
+    // memory for the word frecuency table
+    wc->table = calloc (size, sizeof(size_t);
+    // Memory for the nodes: array of pointes!! 
+    wc->nodes = (l_node_t *) calloc(size, sizeof(l_node_t *));
 
-
-    if (wc->nodes) {
+    if (wc->nodes && wc->table) {
       wc->k = k;
       wc->num_words = size;
     } else {
+      if (wc->table!=NULL) free(wc->table);
+      if (wc->nodes!=NULL) free(wc->nodes); 
       free(wc);
     }
   }
@@ -57,11 +63,28 @@ void wc_free(wc_t *wc) {
 	node = next_node;
       }
       // free frecuency words
-      free(frec);
+      free(table);
     }
     free(wc);
   }
 }
+
+//---------------------------------------------------------
+// n_sec  functions
+//---------------------------------------------------------
+
+ l_ss_t *n_sec_new(void){
+ 
+
+ }
+
+
+ void n_sec_free(l_ss_t *n_sec){
+
+
+ }
+
+
 
 //----------------------------------------------------------
 
