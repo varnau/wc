@@ -1,5 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
+//==============================================================================
+// MAIN1.C: 
+//==============================================================================
+// 
+//==============================================================================
+
 
 #include "wc.h"
 
@@ -19,14 +23,14 @@ void  veo_syntax(char *);
 
 //----------------------------------------------------------
 
-void main(int arg, char *argv[]) {
+void main(int argc, char *argv[]) {
   unsigned char   ta_lut[256];
       
   FILE      *f_in, *f_out;
   char      caracter;
   int       i, j, aux;
  
-  strict wc_t   wc;
+  wc_t   *wc;
   struct l_node *ppunt, *paux;
   struct l_pos  *p_pos;
   
@@ -70,9 +74,9 @@ void main(int arg, char *argv[]) {
   //--------------------------------------------------------
   //---------------------------------------------------------
   if (argc < 4) {
-    printf("\nSYNTAX: \n\n");
+    printf("\nSYNTAX: \n");
     veo_syntax(argv[0]);
-    fflush(stdin); getchar();
+    // fflush(stdin); getchar();
     exit(1);
   }
 
@@ -93,6 +97,7 @@ void main(int arg, char *argv[]) {
   //============    FICHERO de entrada   ==============================
 
   strcpy(ficha, argv[1]);  //------ FICHERO entrada  1  : FILE-1.FASTQ
+ 
   if ( (f_in=fopen(ficha,"r"))!=NULL)  //-->>  Pruebo con el nombre tal cual
     printf ("\n File_in : %s", ficha);
   else {
@@ -146,7 +151,7 @@ void main(int arg, char *argv[]) {
   k = WORD;
 
   // Reservo la estructura de datos global:
-  wc_t *wc = wc_new(k);
+  wc = wc_new(k);
 
 
 
@@ -168,3 +173,14 @@ void main(int arg, char *argv[]) {
 }
 //----------------------------------------------------------
 //----------------------------------------------------------
+
+
+
+void  veo_syntax(char *ss){
+  printf("\n==========================================================\n");
+  printf("%s  FASTQ_File  Out_File  K ", ss);
+  printf("\n-----------\n  k       : Word Size.");
+  printf("\n==========================================================\n");
+
+ return;
+}

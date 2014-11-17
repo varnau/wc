@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 //---------------------------------------------------------
 
@@ -72,17 +73,17 @@ typedef struct l_pos {
 // ---------
 typedef struct wc {
   int k;
-  int num_words;
+  size_t   num_words;
   l_node_t **nodes;
   size_t   *table;
 } wc_t;
 // ----------------------------------------------------------------
 
 // ----------------------------------------------------------------
-// l_ss_t : sequence information
+// l_ss_t : sequence information node
 // ------
 // nom_seq   : first lines of sequence (comment)
-// sequence  : suquence of bases
+// sequence  : sequence of bases
 // size_seq  : sequence size
 // offset    : sequence position in the FASTQ file
 // ------
@@ -91,8 +92,24 @@ typedef struct l_numss {
   char *sequence; //--> NOT: too much information
   size_t  size_seq;
   size_t  offset;    //--> not used
+  struct l_numss *next;
 } l_ss_t;
 // ---------------------------------------------------------------
+
+
+// ----------------------------------------------------------------
+// sss_t : file information struct
+// ------
+// n_seq   : numer of sequences 
+// p_sss   : node pointer
+// file    : FASTQ file
+// ------
+typedef struct sss {
+  int    n_seq;
+  l_ss_t *p_sss;
+  char   *file;
+} sss_t;
+
 
 
 //----------------------------------------------------------
