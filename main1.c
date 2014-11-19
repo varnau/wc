@@ -29,10 +29,15 @@ void main(int argc, char *argv[]) {
   FILE      *f_in, *f_out;
   char      caracter;
   int       i, j, aux;
- 
+
+  // ---------> new data structure: 
   wc_t   *wc;
   struct l_node *ppunt, *paux;
   struct l_pos  *p_pos;
+
+  sss_t  *sss;
+  l_ss_t *p_l_sss;
+  // ----------------------------
   
   double    aux_double;
   int       palabras1=0;
@@ -80,8 +85,6 @@ void main(int argc, char *argv[]) {
     exit(1);
   }
 
-
-
   //==========================================================================
   //==============   Inicializaciones  iniciales  ============================
 
@@ -125,7 +128,7 @@ void main(int argc, char *argv[]) {
 
   //============    KK : tamanyo de palabra   ==========================
 
-  WORD = atoi(argv [3]);     //**************  Tamaño de palabra    *******
+  WORD = atoi(argv [3]);     //**************  TamaÃ±o de palabra    *******
   if ( (WORD<6) || (WORD>15) ) {
     printf ("\n K = [6, 15]\n");
     exit(0);
@@ -145,13 +148,267 @@ void main(int argc, char *argv[]) {
     printf("\n memory allocation failed.\n");
     exit(EXIT_FAILURE);
   }        
+  //**************************************
+  // Reservo memoria para estructura de datos de secuencias FASTQ:
+                                                                    
+
+  //----  auxiliar  memory to strings (sequences)
+
+  ss1 =  (char *) malloc(SSTT * sizeof(char));
+  if (ss1== NULL){
+    printf("\n memory allocation failed.\n");
+    exit(EXIT_FAILURE);
+  }
+        
+  //**********  Reservo memoria para nombre de secuencias
+  ss2 =  (char *) malloc(SSTTMINI * sizeof(char));
+  if (ss2== NULL){
+    printf("\n memory allocation failed.\n");
+    exit(EXIT_FAILURE);
+  }        
+
+  // ---------> New data structure to sequences of FASTQ file:
+
+  sss = sss_new();
+
+  sss->n_seq=0;
+  sss->file = argv[1];
+
+  // **************************************************************************
+  // ******  LEO FICHERO_FASTQ   y genero tabla de frecuencias   **************
+
+  printf("\n\n------- COMIENZA EL ANALISIS  -------------- (pulsa tecla)\n"); 
+  fflush(stdin); getchar();
+  long1=0;                           // icincializo tamanyo FILE-1
+  secuencia = 0;  //--> comenzamos con secuencia 1: se incrementa en comentario
+
+  while (!feof(f_in)) {
+    //----->> Leo primera linea:
+    ch = fgetc(f_in);
+    if(ch!=ARROBA){
+      printf("\n\n-------> FIN DEL ANALISIS\n");  
+      break;
+    }          
+              
+    len2=0;          
+    do {    
+      ch = fgetc(f_in);
+      ss2[len2]=ch;
+      len2++;
+      // printf("\n %d  : %c ", (int)ch, ch);
+      // printf("%c", ch);
+    }
+    while(ch!=CR);   
+    ss2[len2]= 0;
+    
+    // fflush(stdin); getchar();
+ 
+    // ES VIEJO: QUITAR
+    // strcpy(num_secu[secuencia].nom, ss2);
+    // printf("\n....... %s ......", num_secu[secuencia].nom);
+
+    // ----> incorporo datos a nueva estructura:
+
+    aux = strlen(ss2);
+    if (aux){
+       p_l_sss = (l_ss_t *) calloc(1, sizeof (l_ss_t)); 
+       if (p_l_sss==NULL){
+           printf("\n Memory allocation failed.\n");
+           exit(EXIT_FAILURE); 
+       } else{
+	     p_l_sss->nom_seq= calloc(1, aux+1);
+
+             if (secuencia==0){//--> first sequence
+	        sss->n_seq=1;
+	        for (i=0; i<(aux); i++)  p_l_sss->nom_seq[i]= ss2[i];
+		p_l_sss->nom_seq[aux]= 0;
+	        printf("\n First sequence =  %s ", p_l_sss->nom_seq);
+		sss->p_sss=p_l_sss;
+   	     }
+	     else {//---> add in head of list
+                sss->n_seq++;
+		for (i=0; i<(aux); i++)  p_l_sss->nom_seq[i]= ss2[i];
+		p_l_sss->nom_seq[aux]= 0;
+                // strcpy( p_l_sss->nom_seq, ss2);
+		printf("\n Next  sequence =  %s ", p_l_sss->nom_seq);
+                p_l_sss->next=sss->p_sss;
+	        sss->p_sss= p_l_sss;   
+  	      }
+	     //  fflush(stdin); getchar(); 
+            }
+    }
+    else{
+       printf("\n String error.\n");
+       exit(EXIT_FAILURE);
+    }
+    
+
+    
+    // fflush(stdin); getchar();
+    
+    //----->> Leo SEGUNDA linea: SECUENCIA DE NUCLEOTIDOS      
+    len1=0;  
+    ch = fgetc(f_in); //--> leo primer nucleotido!!    
+    do {
+      ss1[len1]=ch;
+      len1++;
+      ch = fgetc(f_in);
+      // printf("\n %d  : %c ", (int)ch, ch);
+      // printf("%c", ch);
+    }
+    while(ch!=CR);      
+    ss1[len1]= 0;
+    
+    //----> QUITAR Y REEMPLAZA:
+    //    num_secu[secuencia].tam = len1;
+    //  printf("\n len= %d", len1);
+    
+    //----->> anotamos en nueva estructura de datos:
+    aux= strlen(ss1); 
+    p_l_sss->sequence= calloc(1, aux+1); 
+    if (p_l_sss->sequence){
+        p_l_sss->size_seq= aux;    
+	for (i=0; i<(aux); i++)  p_l_sss->sequence[i]= ss1[i]; 
+	p_l_sss->sequence[aux] =0;
+        printf("\t-->  len= %d", aux); 
+        printf("\n %s", p_l_sss->sequence);
+    } else {
+      printf("\n Memory allocation failed in SSS.\n");
+      exit(EXIT_FAILURE);
+    } 
+    // fflush(stdin); getchar();
+    
+
+    /********************************************************************
+    /* TODO QUITADO: HAY QUE METERLO EN FUNCION!!!!!
+
+    //----->> Comienza ANOTACIÓN EN LISTAS LIGADAS POR PALABRAS:
+    puntero=0;
+    for(i=0; i<(WORD-2); i++){ //---> WORD-1  primeros nucleotidos:
+      leido = ta_lut[ss1[i]];
+      puntero = puntero << 2;
+      // puntero = puntero & MASCARA;
+      puntero = puntero | leido;     
+    }
+          
+    for(i=WORD-1; i<len1; i++){ //---> resto de nucleotidos:
+      leido = ta_lut[ss1[i]];
+      puntero = puntero << 2;
+      puntero = puntero & MASCARA;
+      puntero = puntero | leido;     
+          
+      // Nueva mejora: si no es el último introducido (inserción por cabeza),
+      // no hace falta recorrer toda la lista,
+      // puesto que se asegura que ya no va a estar
+      if(p_lista[puntero] == NULL || p_lista[puntero]->n_secuencia != secuencia) {
+	ppunt = (struct L_NODO *) malloc(sizeof(struct L_NODO));              
+	if(ppunt == NULL)  {
+	  printf("\n Memory allocation failed.\n");
+	  exit(EXIT_FAILURE);
+	}
+	ppunt->n_secuencia = secuencia;
+	ppunt->mult = 1;
+	
+	ppunt->l_pos = (struct L_POS *) malloc(sizeof(struct L_POS));              
+	if(ppunt->l_pos == NULL)  {
+	  printf("\n Memory allocation failed.\n");
+	  exit(EXIT_FAILURE);
+	}
+	//--> anoto posición de la palabra dentro de la secuencia:   
+	ppunt->l_pos->posicion = i;
+	ppunt->l_pos->sig_pos  = NULL;
+	
+	
+	ppunt->sig = p_lista[puntero];
+	p_lista[puntero] = ppunt;
+	
+	tabla[puntero]++; //--> numero de secuencias por palabra
+      }
+      else {
+	++p_lista[puntero]->mult;
+	//--> amplio la lista de posiciones dentro de una misma secuencia
+	//--> para una palabra dada.
+	
+	p_pos = (struct L_POS *) malloc(sizeof(struct L_POS));              
+	if(p_pos == NULL)  {
+	  printf("\n Memory allocation failed.\n");
+	  exit(EXIT_FAILURE);
+	}
+	p_pos->posicion= i;
+	//--> anyado en cabeza de lista:
+	p_pos->sig_pos = p_lista[puntero]->l_pos;
+	p_lista[puntero]->l_pos = p_pos;
+	//--> de momento, no incrementamos este valor
+	// tabla[puntero]++; //--> numero de secuencias por palabra
+	
+      }
+       
+      long1++;
+    }//-----> del FOR 
+          
+    ****************************************************************************/
 
 
-  int k;
-  k = WORD;
+
+
+    //----->> Leo tercera linea:
+    ch = fgetc(f_in);
+    if(ch!=MAS){
+      printf("\n\n-------> FIN DEL ANALISIS\n");  
+      break;
+    }           
+    do {    
+      ch = fgetc(f_in);
+      // printf("\n %d  : %c ", (int)ch, ch);
+      // printf("%c ", ch);
+    }
+    while(ch!=CR);   
+    // fflush(stdin); getchar();
+    
+    //----->> Leo cuarta linea:      
+    do {    
+      ch = fgetc(f_in);
+      // printf("%c", ch);
+      // printf("\n %d  : %c ", (int)ch, ch);
+    }
+    while(ch!=CR);   
+    // fflush(stdin); getchar();
+    secuencia++;
+    
+  }
+ 
+ 
+  // printf("\n\n-------> FIN DEL ANALISIS!!!!\n"); 
+  // fflush(stdin); getchar();
+  
+  fclose(f_in);    // cierro fichero de entrada CROMOSOMA (SOURCE  FILE ) !!!
+
+  printf("\n");
+  printf("\nSecuencias leidas =  %d \n", secuencia);
+  // printf("\nMaxima longitud de comentario =  %d \n", max_comen);  
+  //========================================================================//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // Reservo la estructura de datos global:
+  int k;
+  k= WORD;
+    
   wc = wc_new(k);
+  wc->k = k;
+
 
 
 
@@ -161,15 +418,19 @@ void main(int argc, char *argv[]) {
 
 
 
-
-
-
-
-
-
+ 
   wc_display(wc);
 
+  printf("\n Memory FREE ... wc .\n");
+  fflush(stdin); getchar();
+
   wc_free(wc);
+
+  printf("\n Memory FREE ... sss .\n");
+  fflush(stdin); getchar();  
+  sss_free(sss);
+
+  return;
 }
 //----------------------------------------------------------
 //----------------------------------------------------------

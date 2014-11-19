@@ -38,7 +38,10 @@ wc_t *wc_new(int k) {
 void wc_free(wc_t *wc) {
   if (wc) {
     l_node_t *node, *next_node;
-    l_pos_t *pos, *next_pos;
+    l_pos_t  *pos,  *next_pos;
+
+    printf("\n n_words = %ld ", wc->num_words);
+
     for (int i = 0; i < wc->num_words; i++) {
       node = wc->nodes[i];
       while(node) {
@@ -61,11 +64,14 @@ void wc_free(wc_t *wc) {
 	node = next_node;
       }
       // free frecuency words
-      free(wc->table);
+      // free(wc->table);
     }
+    // free frecuency words
+    free(wc->table);
     free(wc);
-  }
+  }//--> del IF(wc)
 }
+
 
 //---------------------------------------------------------
 // n_sec  functions
@@ -87,7 +93,7 @@ void wc_free(wc_t *wc) {
 //----------------------------------------------------------
 
 void wc_display(wc_t *wc) {
-  printf("K value = %i\n", wc->k);
+  printf("\nK value = %i\n", wc->k);
   printf("Num. words = %ld\n", wc->num_words);
 }
 
@@ -140,9 +146,12 @@ void sss_free(sss_t *sss) {
        node=sss->p_sss;
        next_node = node->next;
        while(node){
+	 free(node->nom_seq);
+	 free(node->sequence);
 	 free(node);
-	 node=next_node;
-	 next_node=node->next;
+         node=next_node;
+	 if(node)
+	    next_node=node->next;
        }
     }
   }
