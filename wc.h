@@ -9,17 +9,16 @@
 #include <math.h>
 //---------------------------------------------------------
 
-/******************************************
+/******************************************/
 // 4 nucleotides
 #define LETRAS  4
 #define BARRA              50
-#define UNKBYTE          1024
-#define UNMEGA        1048576                                                                  
+
 
 // max size of strings
 #define SSTT    80000  // for a read
 #define STMINI     98  // head of a read
-*********************************************/
+/*********************************************/
 
 // To read FASTQ
 #define MAYOR         62
@@ -28,7 +27,9 @@
 #define MAS           43
 #define AND           38
 #define TAB            9
-   
+  
+
+ 
 //----------------------------------------------------------
 // structs : l_node_t   l_pos_t  wc_t  l_ss_t
 //----------------------------------------------------------
@@ -131,13 +132,14 @@ wc_t *wc_new(int k);
 void wc_free(wc_t *wc);
 
 void wc_display(wc_t *wc);
-void wc_upate(char *id, char *seq, wc_t *wc);
-int  wc_compare(char *id1, char *id2, wc_t *wc);
-wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
+void wc_update(char *id, char *seq, wc_t *wc, unsigned char *ta_lut, int secuencia);
 
 //----------------------------------------------------------
 // wc_cmp functions
 //----------------------------------------------------------
+
+int  wc_compare(char *id1, char *id2, wc_t *wc);
+wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
 
 
 //----------------------------------------------------------
@@ -147,8 +149,9 @@ wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
 //----------------------------------------------------------
 // wc_sss functions
 //---------------------------------------------------------
+
 sss_t *sss_new(void);
-void   sss_free(sss_t *sss);
+void  sss_free(sss_t *sss);
 
 
 

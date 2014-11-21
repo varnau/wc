@@ -4,10 +4,9 @@
 // 
 //==============================================================================
 
-
 #include "wc.h"
 
-
+/**************************************************
 //--> longitud string READ
 #define SSTT    30000
 #define SSTTMINI   80
@@ -17,6 +16,7 @@
 #define BARRA              50
 #define UNKBYTE          1024
 #define UNMEGA        1048576
+**************************************************/
 
 
 void  veo_syntax(char *);
@@ -143,7 +143,7 @@ void main(int argc, char *argv[]) {
   }
         
   //**********  Reservo memoria para nombre de secuencias
-  ss2 =  (char *) malloc(SSTTMINI * sizeof(char));
+  ss2 =  (char *) malloc(STMINI * sizeof(char));
   if (ss2== NULL){
     printf("\n memory allocation failed.\n");
     exit(EXIT_FAILURE);
@@ -161,7 +161,7 @@ void main(int argc, char *argv[]) {
   }
         
   //**********  Reservo memoria para nombre de secuencias
-  ss2 =  (char *) malloc(SSTTMINI * sizeof(char));
+  ss2 =  (char *) malloc(STMINI * sizeof(char));
   if (ss2== NULL){
     printf("\n memory allocation failed.\n");
     exit(EXIT_FAILURE);
@@ -173,6 +173,7 @@ void main(int argc, char *argv[]) {
 
   sss->n_seq=0;
   sss->file = argv[1];
+
 
   // **************************************************************************
   // ******  LEO FICHERO_FASTQ   y genero tabla de frecuencias   **************
@@ -381,33 +382,37 @@ void main(int argc, char *argv[]) {
   // printf("\n\n-------> FIN DEL ANALISIS!!!!\n"); 
   // fflush(stdin); getchar();
   
-  fclose(f_in);    // cierro fichero de entrada CROMOSOMA (SOURCE  FILE ) !!!
+  fclose(f_in);    //--> close DNA_File (FASTQ file) !!!
 
   printf("\n");
-  printf("\nSecuencias leidas =  %d \n", secuencia);
+  //  printf("\nSecuencias leidas =  %d \n", secuencia);
+
+  printf("\nSecuencias leidas =  %d \n", sss->n_seq); 
+
   // printf("\nMaxima longitud de comentario =  %d \n", max_comen);  
-  //========================================================================//
+
+  //======================================================================//
+  //====    update the sequence data in the global strucutre WC     ======
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Reservo la estructura de datos global:
-  int k;
+  // Reservo la estructura de datos global:  
+  int k; 
   k= WORD;
-    
-  wc = wc_new(k);
+  wc = wc_new(k); 
   wc->k = k;
+
+  // pointer to first sequence data:
+  p_l_sss= sss->p_sss;
+
+  for (i=0;i<sss->n_seq; i++){
+    if(p_l_sss){
+      //--> update sequence:
+      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, ta_lut, i);
+      p_l_sss= p_l_sss->next;
+    }
+  }
+
+
 
 
 
@@ -421,13 +426,9 @@ void main(int argc, char *argv[]) {
  
   wc_display(wc);
 
-  printf("\n Memory FREE ... wc .\n");
-  fflush(stdin); getchar();
+  printf("\n FREE  Memory ... \n");
 
   wc_free(wc);
-
-  printf("\n Memory FREE ... sss .\n");
-  fflush(stdin); getchar();  
   sss_free(sss);
 
   return;
