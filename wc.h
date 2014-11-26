@@ -11,8 +11,9 @@
 
 /******************************************/
 // 4 nucleotides
-#define LETRAS  4
-#define BARRA              50
+#define LETRAS        4
+// #define ENE           5
+#define BARRA        50
 
 
 // max size of strings
@@ -67,16 +68,22 @@ typedef struct l_pos {
 // ----------------------------------------------------------------
 // wc_t : global structure of data
 // ---------
-// k    : size of word
+// k     : size of word
+// n_seq : sequence number
 // num_word : 4 exp(k)= number of words
-// nodes: pointer to nodes
-// frec : number of sequences for a word
+// nodes : pointer to nodes
+// table : number of sequences for a word
+// ta_co  : word maching table
+// ta_lut: Nucleotides Lut Table
 // ---------
 typedef struct wc {
-  int k;
-  size_t   num_words;
-  l_node_t **nodes;
-  size_t   *table;
+  int    k;
+  int     n_seq;
+  size_t    num_words;
+  l_node_t  **nodes;
+  size_t    *table;
+  int      **ta_co;
+  unsigned char *ta_lut;
 } wc_t;
 // ----------------------------------------------------------------
 
@@ -128,23 +135,34 @@ typedef struct wc_table {
 // wc functions
 //----------------------------------------------------------
 
-wc_t *wc_new(int k);
+wc_t *wc_new(int k, int n_sequences);
 void wc_free(wc_t *wc);
 
 void wc_display(wc_t *wc);
-void wc_update(char *id, char *seq, wc_t *wc, unsigned char *ta_lut, int secuencia);
+void wc_update(char *id, char *seq, wc_t *wc, int secuencia);
 
 //----------------------------------------------------------
 // wc_cmp functions
 //----------------------------------------------------------
 
-int  wc_compare(char *id1, char *id2, wc_t *wc);
+/**********
+inline int  wc_compare(wc_t *wc) {
+  wc_compare_by_index(0, 1, wc);
+}
+**********/
+
+int wc_compare_by_index(int idx1, int idx2, wc_t *wc);
+// int  wc_compare_by_id(char *id, char *id, wc_t *wc);
+// wc_cmp_t *wc_full_compare(wc_t *wc);
 wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
 
 
 //----------------------------------------------------------
 // wc_table functions
 //----------------------------------------------------------
+
+void  wc_table(wc_t *wc);
+void  wc_display_table(wc_t *wc);
 
 //----------------------------------------------------------
 // wc_sss functions

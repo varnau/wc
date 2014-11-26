@@ -24,7 +24,7 @@ void  veo_syntax(char *);
 //----------------------------------------------------------
 
 void main(int argc, char *argv[]) {
-  unsigned char   ta_lut[256];
+  //  unsigned char   ta_lut[256];
       
   FILE      *f_in, *f_out;
   char      caracter;
@@ -44,7 +44,7 @@ void main(int argc, char *argv[]) {
   long int  aux_long;
   int       WORD;         // = k
   long int  MEMORIA;      // 4  exp k
-  int       MASCARA=0;    // Mascara 
+  //  int       MASCARA=0;    // Mascara 
   int       bases, long1;
 
   int register   puntero;
@@ -85,16 +85,6 @@ void main(int argc, char *argv[]) {
     exit(1);
   }
 
-  //==========================================================================
-  //==============   Inicializaciones  iniciales  ============================
-
-  for (i=0; i<256; i++) ta_lut[i] = 4;   // inicializo tabla lut   *********/
-  ta_lut['A'] = 0;  ta_lut['a'] = 0;
-  ta_lut['C'] = 1;  ta_lut['c'] = 1;
-  ta_lut['G'] = 2;  ta_lut['g'] = 2;
-  ta_lut['T'] = 3;  ta_lut['t'] = 3;
-  // ta_lut['N'] = ENE;  ta_lut['n'] = ENE;  // Nuevo en 4-IV-2004
-  // ta_lut['>'] = MAYOR; 
   
   //===================================================================
   //============    FICHERO de entrada   ==============================
@@ -280,78 +270,6 @@ void main(int argc, char *argv[]) {
     // fflush(stdin); getchar();
     
 
-    /********************************************************************
-    /* TODO QUITADO: HAY QUE METERLO EN FUNCION!!!!!
-
-    //----->> Comienza ANOTACIÓN EN LISTAS LIGADAS POR PALABRAS:
-    puntero=0;
-    for(i=0; i<(WORD-2); i++){ //---> WORD-1  primeros nucleotidos:
-      leido = ta_lut[ss1[i]];
-      puntero = puntero << 2;
-      // puntero = puntero & MASCARA;
-      puntero = puntero | leido;     
-    }
-          
-    for(i=WORD-1; i<len1; i++){ //---> resto de nucleotidos:
-      leido = ta_lut[ss1[i]];
-      puntero = puntero << 2;
-      puntero = puntero & MASCARA;
-      puntero = puntero | leido;     
-          
-      // Nueva mejora: si no es el último introducido (inserción por cabeza),
-      // no hace falta recorrer toda la lista,
-      // puesto que se asegura que ya no va a estar
-      if(p_lista[puntero] == NULL || p_lista[puntero]->n_secuencia != secuencia) {
-	ppunt = (struct L_NODO *) malloc(sizeof(struct L_NODO));              
-	if(ppunt == NULL)  {
-	  printf("\n Memory allocation failed.\n");
-	  exit(EXIT_FAILURE);
-	}
-	ppunt->n_secuencia = secuencia;
-	ppunt->mult = 1;
-	
-	ppunt->l_pos = (struct L_POS *) malloc(sizeof(struct L_POS));              
-	if(ppunt->l_pos == NULL)  {
-	  printf("\n Memory allocation failed.\n");
-	  exit(EXIT_FAILURE);
-	}
-	//--> anoto posición de la palabra dentro de la secuencia:   
-	ppunt->l_pos->posicion = i;
-	ppunt->l_pos->sig_pos  = NULL;
-	
-	
-	ppunt->sig = p_lista[puntero];
-	p_lista[puntero] = ppunt;
-	
-	tabla[puntero]++; //--> numero de secuencias por palabra
-      }
-      else {
-	++p_lista[puntero]->mult;
-	//--> amplio la lista de posiciones dentro de una misma secuencia
-	//--> para una palabra dada.
-	
-	p_pos = (struct L_POS *) malloc(sizeof(struct L_POS));              
-	if(p_pos == NULL)  {
-	  printf("\n Memory allocation failed.\n");
-	  exit(EXIT_FAILURE);
-	}
-	p_pos->posicion= i;
-	//--> anyado en cabeza de lista:
-	p_pos->sig_pos = p_lista[puntero]->l_pos;
-	p_lista[puntero]->l_pos = p_pos;
-	//--> de momento, no incrementamos este valor
-	// tabla[puntero]++; //--> numero de secuencias por palabra
-	
-      }
-       
-      long1++;
-    }//-----> del FOR 
-          
-    ****************************************************************************/
-
-
-
-
     //----->> Leo tercera linea:
     ch = fgetc(f_in);
     if(ch!=MAS){
@@ -384,22 +302,24 @@ void main(int argc, char *argv[]) {
   
   fclose(f_in);    //--> close DNA_File (FASTQ file) !!!
 
-  printf("\n");
-  //  printf("\nSecuencias leidas =  %d \n", secuencia);
-
+    printf("\n");
+  // printf("\nSecuencias leidas =  %d \n", secuencia);
   printf("\nSecuencias leidas =  %d \n", sss->n_seq); 
 
   // printf("\nMaxima longitud de comentario =  %d \n", max_comen);  
 
-  //======================================================================//
+  //======================================================================
   //====    update the sequence data in the global strucutre WC     ======
 
 
   // Reservo la estructura de datos global:  
   int k; 
   k= WORD;
-  wc = wc_new(k); 
+  wc = wc_new(k, secuencia); 
+  fflush(stdin); getchar();  
+
   wc->k = k;
+  wc->n_seq=  sss->n_seq;  
 
   // pointer to first sequence data:
   p_l_sss= sss->p_sss;
@@ -407,14 +327,27 @@ void main(int argc, char *argv[]) {
   for (i=0;i<sss->n_seq; i++){
     if(p_l_sss){
       //--> update sequence:
-      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, ta_lut, i);
+      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, i);
       p_l_sss= p_l_sss->next;
     }
   }
 
 
+  wc_display(wc); 
+
+  printf ("\n=================================================="); 
 
 
+  //==================================================================
+  //=== Genero la Tabla de palabras coincidentes entre secuencias
+
+  printf("\n Llamo a wc_table \n");
+  //  fflush(stdin); getchar();
+  wc_table(wc);
+
+  printf("\n Llamo a wc_display_table \n");  
+  fflush(stdin); getchar();
+  wc_display_table(wc);
 
 
   printf ("\n==================================================");
@@ -424,7 +357,8 @@ void main(int argc, char *argv[]) {
 
 
  
-  wc_display(wc);
+  printf ("\n=================================================="); 
+
 
   printf("\n FREE  Memory ... \n");
 

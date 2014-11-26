@@ -7,7 +7,7 @@
 // ---------------------------------------------------------
 // wc_new: create a data structure
 // -------
-wc_t *wc_new(int k) {
+wc_t *wc_new(int k, int n_sequences) {
   size_t size;
   int    i;
 
@@ -19,23 +19,66 @@ wc_t *wc_new(int k) {
     // Memory for the nodes: array of pointes!! 
     wc->nodes = (l_node_t **) calloc(size, sizeof(l_node_t *));
 
-    if (wc->nodes && wc->table) {
-      wc->k = k;
-      wc->num_words = size;
-    } else {
-      if (wc->table!=NULL) free(wc->table);
-      if (wc->nodes!=NULL) free(wc->nodes); 
-      free(wc);
+    // Memory for the word maching table:
+    if(n_sequences==0) {
+      printf("\n not sequence\n");
+      exit(EXIT_FAILURE);  
     }
+
+    printf("\n====>> n_seq= %d ", n_sequences);
+    fflush(stdin); getchar();
+
+    wc->ta_co = (int **) calloc(n_sequences, sizeof(int *));    // per a la tabla_co
+    if (wc->ta_co){
+      for (i=0; i<n_sequences; i++){
+        wc->ta_co[i] = (int *) calloc(n_sequences, sizeof(int));
+	if (wc->ta_co[i]== NULL){
+     	  printf("\n memory allocation failed in maching table.\n");
+	  exit(EXIT_FAILURE);
+	}
+      }
+    }
+    else printf ("\n VAMOS MAL\n");
+
+    //    printf ("\n SIGO?????\n");
+    //    fflush(stdin); getchar();
+
+
+    // Nucleotides Lut Table:
+    wc->ta_lut    = (unsigned char *) calloc(256, sizeof(unsigned char));
+    if(wc->ta_lut){
+      for(i=0; i<256; i++) wc->ta_lut[i] = 4;   //--> initail values
+      wc->ta_lut['A'] = 0; wc->ta_lut['a'] = 0;
+      wc->ta_lut['C'] = 1; wc->ta_lut['c'] = 1;
+      wc->ta_lut['G'] = 2; wc->ta_lut['g'] = 2;
+      wc->ta_lut['T'] = 3; wc->ta_lut['t'] = 3;
+      // wc->ta_lut['N'] = ENE; wc->ta_lut['n'] = ENE; wc->ta_lut['>'] = MAYOR; 
+    }
+
+    if (wc->nodes && wc->table && wc->ta_lut && wc->ta_co) {
+       wc->k = k;
+       wc->num_words = size;
+    } else {
+        if (wc->table!=NULL) free(wc->table);
+        if (wc->nodes!=NULL) free(wc->nodes); 
+        if (wc->ta_lut!=NULL)free(wc->ta_lut);
+        // for (i=0; i<wc->n_seq; i++) free(wc->ta_co[i]);
+        if (wc->ta_lut!=NULL) free(wc->ta_co); 
+        free(wc);
+      }
   }
-  return wc;
+
+  return wc; 
 }
+
 //----------------------------------------------------------
 
 // --------------------------------------------------------
 // wc_free : free memory for a data structure
 // --------
 void wc_free(wc_t *wc) {
+  int i;
+
   if (wc) {
     l_node_t *node, *next_node;
     l_pos_t  *pos,  *next_pos;
@@ -67,7 +110,21 @@ void wc_free(wc_t *wc) {
       // free(wc->table);
     }
     // free frecuency words
+
+    printf("\n Free 2 tables");  
+
+    fflush(stdin); getchar();  
     free(wc->table);
+    free(wc->ta_lut);
+
+
+    printf("\n Free maching table");
+
+    fflush(stdin); getchar();
+    // free maching table:
+    for (i=0; i<wc->n_seq; i++) free(wc->ta_co[i]);
+    free(wc->ta_co); 
+
     free(wc);
   }//--> del IF(wc)
 }
@@ -76,7 +133,7 @@ void wc_free(wc_t *wc) {
 //-------------------------------------------------------------
 // wc_update: update sequence words in global data structure WC
 // ---------
-void wc_update(char *id, char *seq, wc_t *wc, unsigned char *ta_lut, int secuencia) {
+void wc_update(char *id, char *seq, wc_t *wc, int secuencia) {
   int puntero;
   size_t MASCARA;
   size_t WORD;
@@ -86,16 +143,17 @@ void wc_update(char *id, char *seq, wc_t *wc, unsigned char *ta_lut, int secuenc
   l_node_t *ppunt, paux;
   l_pos_t  *p_pos;
 
+  unsigned char *ta_lut = wc->ta_lut;
 
   MASCARA= (size_t) pow(4.0, wc->k); 
   MASCARA = MASCARA-1;
-  printf("\n MASCARA = %ld ", MASCARA);
+  //  printf("\n MASCARA = %ld ", MASCARA);
   WORD= wc->k;
 
 
-  printf("\n %s ", id);
-  printf("\n %s ", seq);
-  printf("\n %d ", wc->k);
+  //  printf("\n %s ", id);
+  //  printf("\n %s ", seq);
+  //  printf("\n %d ", wc->k);
 
   len1=strlen(seq);
 
@@ -169,12 +227,6 @@ void wc_update(char *id, char *seq, wc_t *wc, unsigned char *ta_lut, int secuenc
     // long1++;
   }//-----> del FOR 
 
-
-
-
-
-
-
 }
 
 //----------------------------------------------------------
@@ -188,7 +240,8 @@ void wc_display(wc_t *wc) {
   for (int i = 0; i < 1024; i++) {
     if (wc->nodes[i]){
 	printf("\n[%3d]--> %3d ", i, wc->nodes[i]->n_seq );
-	printf("\t --> %3d ",  wc->nodes[i]->l_pos->pos);
+	printf("\t --> mult=%3d ",  wc->nodes[i]->mult);
+	printf("\t --> pos =%3d ",  wc->nodes[i]->l_pos->pos);
       }
   }
 
@@ -213,8 +266,7 @@ void wc_display(wc_t *wc) {
 
 
 //----------------------------------------------------------
-
-
+// wc_cmp functions:
 //----------------------------------------------------------
 
 int wc_compare(char *id1, char *id2, wc_t *wc) {
@@ -225,6 +277,63 @@ int wc_compare(char *id1, char *id2, wc_t *wc) {
 wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc) {
 }
 
+//----------------------------------------------------------
+// wc_table functions:
+//----------------------------------------------------------
+
+//----------------------------------------------------------
+void wc_table (wc_t *wc){
+  int  i;
+  l_node_t  *ppunt, *paux;
+
+  printf("\n Num_words = %ld ", wc->num_words);
+
+  for (i=0; i<wc->num_words; i++){
+    if (wc->table[i]>1){ //--> tengo lista no vacia con mas de 1 sec.
+      ppunt= wc->nodes[i];
+      do{
+	paux = ppunt->next;
+	    
+	do { 
+	  //--> no tengo en cuenta palabras repetidas en una sec.
+	  printf("\n [%3d, %3d] ", ppunt->n_seq, paux->n_seq);
+	  printf("\t: %3d ", wc->n_seq);
+
+	  (wc->ta_co[ppunt->n_seq][paux->n_seq])++; 
+	  (wc->ta_co[paux->n_seq] [ppunt->n_seq])++; //-> simetric
+
+	  printf(" =  %3d ",wc->ta_co[ppunt->n_seq][paux->n_seq]);
+	  // fflush(stdin); getchar();
+
+	  paux= paux->next;
+	}
+	while (paux!=NULL);
+	ppunt=ppunt->next;
+      }
+      while(ppunt->next!=NULL);
+      
+    }//--> del  IF
+  }//---> del FOR
+  
+  fflush(stdin); getchar();
+  return;
+}
+
+//----------------------------------------------------------
+void wc_display_table (wc_t *wc){
+  int i, j;
+
+  printf("\n-------------------------------------\n");
+  for (i=0; i<wc->n_seq; i++){
+     for (j=0; j<wc->n_seq; j++)
+       printf(" %4d ",wc->ta_co[i][j]);
+     printf("\n");
+  }
+  printf("\n-------------------------------------\n");
+
+
+
+}
 //----------------------------------------------------------
 
 //----------------------------------------------------------
