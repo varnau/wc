@@ -46,7 +46,7 @@
 typedef struct l_node {
   struct l_node *next;
   int    n_seq;
-  short  mult; 
+  int    mult; 
   struct l_pos *l_pos;
 } l_node_t;
 //------------------------------------------------------------------  
@@ -66,7 +66,7 @@ typedef struct l_pos {
 
 
 // ----------------------------------------------------------------
-// wc_t : global structure of data
+// wordc_t : global structure of data
 // ---------
 // k     : size of word
 // n_seq : sequence number
@@ -76,7 +76,7 @@ typedef struct l_pos {
 // ta_co  : word maching table
 // ta_lut: Nucleotides Lut Table
 // ---------
-typedef struct wc {
+typedef struct wordc {
   int    k;
   int     n_seq;
   size_t    num_words;
@@ -163,6 +163,9 @@ wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
 
 void  wc_table(wc_t *wc);
 void  wc_display_table(wc_t *wc);
+
+void  wc_display_table_sss(wc_t *wc, sss_t *sss);
+
 
 //----------------------------------------------------------
 // wc_sss functions

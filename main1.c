@@ -212,14 +212,14 @@ void main(int argc, char *argv[]) {
              if (secuencia==0){//--> first sequence
 	        sss->n_seq=1;
 	        for (i=0; i<(aux); i++)  p_l_sss->nom_seq[i]= ss2[i];
-		p_l_sss->nom_seq[aux]= 0;
+		p_l_sss->nom_seq[aux-1]= 0; //--> CR to end to sequence
 	        printf("\n First sequence =  %s ", p_l_sss->nom_seq);
 		sss->p_sss=p_l_sss;
    	     }
 	     else {//---> add in head of list
                 sss->n_seq++;
 		for (i=0; i<(aux); i++)  p_l_sss->nom_seq[i]= ss2[i];
-		p_l_sss->nom_seq[aux]= 0;
+		p_l_sss->nom_seq[aux-1]= 0; //--> CR to end to sequence
                 // strcpy( p_l_sss->nom_seq, ss2);
 		printf("\n Next  sequence =  %s ", p_l_sss->nom_seq);
                 p_l_sss->next=sss->p_sss;
@@ -304,7 +304,7 @@ void main(int argc, char *argv[]) {
 
     printf("\n");
   // printf("\nSecuencias leidas =  %d \n", secuencia);
-  printf("\nSecuencias leidas =  %d \n", sss->n_seq); 
+  printf("\n Secuencias leidas =  %d \n", sss->n_seq); 
 
   // printf("\nMaxima longitud de comentario =  %d \n", max_comen);  
 
@@ -327,7 +327,10 @@ void main(int argc, char *argv[]) {
   for (i=0;i<sss->n_seq; i++){
     if(p_l_sss){
       //--> update sequence:
-      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, i);
+      //      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, i);
+
+      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, sss->n_seq-i-1);
+
       p_l_sss= p_l_sss->next;
     }
   }
@@ -349,16 +352,13 @@ void main(int argc, char *argv[]) {
   fflush(stdin); getchar();
   wc_display_table(wc);
 
-
   printf ("\n==================================================");
 
-
-
-
-
+  printf("\n Llamo a wc_display_table_sss \n");
+  fflush(stdin); getchar();
+  wc_display_table_sss(wc, sss);
  
   printf ("\n=================================================="); 
-
 
   printf("\n FREE  Memory ... \n");
 

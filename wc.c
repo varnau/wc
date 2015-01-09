@@ -25,8 +25,8 @@ wc_t *wc_new(int k, int n_sequences) {
       exit(EXIT_FAILURE);  
     }
 
-    printf("\n====>> n_seq= %d ", n_sequences);
-    fflush(stdin); getchar();
+    //    printf("\n====>> n_seq= %d ", n_sequences);
+    //    fflush(stdin); getchar();
 
     wc->ta_co = (int **) calloc(n_sequences, sizeof(int *));    // per a la tabla_co
     if (wc->ta_co){
@@ -111,17 +111,16 @@ void wc_free(wc_t *wc) {
     }
     // free frecuency words
 
-    printf("\n Free 2 tables");  
+    //    printf("\n Free 2 tables");  
+    //    fflush(stdin); getchar();  
 
-    fflush(stdin); getchar();  
     free(wc->table);
     free(wc->ta_lut);
 
+    //    printf("\n Free maching table");
+    //    fflush(stdin); getchar();
 
-    printf("\n Free maching table");
-
-    fflush(stdin); getchar();
-    // free maching table:
+    //----->  free maching table:
     for (i=0; i<wc->n_seq; i++) free(wc->ta_co[i]);
     free(wc->ta_co); 
 
@@ -133,7 +132,7 @@ void wc_free(wc_t *wc) {
 //-------------------------------------------------------------
 // wc_update: update sequence words in global data structure WC
 // ---------
-void wc_update(char *id, char *seq, wc_t *wc, int secuencia) {
+void wc_update(char *id, char *seq, wc_t *wc, int sequence) {
   int puntero;
   size_t MASCARA;
   size_t WORD;
@@ -150,10 +149,7 @@ void wc_update(char *id, char *seq, wc_t *wc, int secuencia) {
   //  printf("\n MASCARA = %ld ", MASCARA);
   WORD= wc->k;
 
-
-  //  printf("\n %s ", id);
-  //  printf("\n %s ", seq);
-  //  printf("\n %d ", wc->k);
+  printf("\n SECUENCIA  = %d ", sequence);
 
   len1=strlen(seq);
 
@@ -172,7 +168,7 @@ void wc_update(char *id, char *seq, wc_t *wc, int secuencia) {
     puntero = puntero & MASCARA;
     puntero = puntero | leido;     
           
-    // Nueva mejora: si no es el último introducido (inserción por cabeza),
+    // Nueva mejora: si no es el ultimo introducido (insercion por cabeza),
     // no hace falta recorrer toda la lista,
     // puesto que se asegura que ya no va a estar
 
@@ -180,29 +176,49 @@ void wc_update(char *id, char *seq, wc_t *wc, int secuencia) {
     // if(p_lista[puntero] == NULL || p_lista[puntero]->n_secuencia != secuencia) {
 
 
-    if(wc->nodes[puntero] == NULL || wc->nodes[puntero]->n_seq != secuencia) {
+    if((wc->nodes[puntero] == NULL) || (wc->nodes[puntero]->n_seq != sequence)){
 
       ppunt = (l_node_t *) calloc(1, sizeof(l_node_t));              
       if(ppunt == NULL)  {
 	printf("\n Memory allocation failed.\n");
 	exit(EXIT_FAILURE);
       }
-      ppunt->n_seq = secuencia;
+
+      ppunt->n_seq = sequence;
       ppunt->mult = 1;
+      //      printf("\n sequence= %d \n", ppunt->n_seq);
+      // fflush(stdin); getchar();
+
       
       ppunt->l_pos = (l_pos_t *) calloc(1, sizeof(l_pos_t));              
       if(ppunt->l_pos == NULL)  {
 	printf("\n Memory allocation failed.\n");
 	exit(EXIT_FAILURE);
       }
-      //--> anoto posición de la palabra dentro de la secuencia:   
+      //--> anoto posicion de la palabra dentro de la secuencia:   
       ppunt->l_pos->pos = i;
       ppunt->l_pos->next  = NULL;
       
       
-      ppunt->next = wc->nodes[puntero];
-      wc->nodes[puntero] = ppunt;
-      
+      //--> insert in head: TWO CASES!!
+      if (wc->nodes[puntero]){ // wc->nodes[] NO NULL
+	ppunt->next= wc->nodes[puntero];
+	wc->nodes[puntero] = ppunt;
+
+	// printf("\n sequence_____= %d \n", ppunt->n_seq);
+        //fflush(stdin); getchar();
+
+      }
+      else{ //--> wc->nodes[] == NULL  
+	ppunt->next= NULL;
+	wc->nodes[puntero] = ppunt;
+	// printf("\n sequence_NULL= %d ", wc->nodes[puntero]->n_seq);
+
+	// printf("\n sequence_NULL= %d ", ppunt->n_seq);
+	// fflush(stdin); getchar();
+
+      }
+
       wc->table[puntero]++; //--> numero de secuencias por palabra
     }
     else {
@@ -215,35 +231,47 @@ void wc_update(char *id, char *seq, wc_t *wc, int secuencia) {
 	printf("\n Memory allocation failed.\n");
 	exit(EXIT_FAILURE);
       }
-      p_pos->pos= i;
+      p_pos->pos = i;
+      p_pos->next= NULL;
+
       //--> anyado en cabeza de lista:
       p_pos->next = wc->nodes[puntero]->l_pos;
       wc->nodes[puntero]->l_pos = p_pos;
       //--> de momento, no incrementamos este valor
-      // tabla[puntero]++; //--> numero de secuencias por palabra
+      // tabla[puntero]++; //--> numero de secuencias por palabra NO SE INCREMENTA
       
     }
      
     // long1++;
   }//-----> del FOR 
 
+  // fflush(stdin); getchar();
+
 }
 
 //----------------------------------------------------------
 
 void wc_display(wc_t *wc) {
-  printf("\nK value = %i\n", wc->k);
-  printf("Num. words = %ld\n", wc->num_words);
+
+ printf("\n-----------------------------------------------");
+ printf("\n K value = %i", wc->k);
+ printf("\n Num. words = %ld\n", wc->num_words);
 
   int i;
   //  for (int i = 0; i < wc->num_words; i++) {
+
+  /****************************************
   for (int i = 0; i < 1024; i++) {
     if (wc->nodes[i]){
-	printf("\n[%3d]--> %3d ", i, wc->nodes[i]->n_seq );
+	printf("\nTable[%3d]--> Seq=%3d ", i, wc->nodes[i]->n_seq );
+        if (wc->nodes[i]->next)
+          printf(" --> Sig_seq=%3d ", wc->nodes[i]->next->n_seq );
+	else  printf("\t  ");
 	printf("\t --> mult=%3d ",  wc->nodes[i]->mult);
 	printf("\t --> pos =%3d ",  wc->nodes[i]->l_pos->pos);
       }
   }
+  *************************************************/
 
 }
 
@@ -283,27 +311,47 @@ wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc) {
 
 //----------------------------------------------------------
 void wc_table (wc_t *wc){
-  int  i;
+  //  int  i;
+  size_t  i;
   l_node_t  *ppunt, *paux;
 
-  printf("\n Num_words = %ld ", wc->num_words);
+  printf("\n Num_words = %ld \n", wc->num_words);
+  //  fflush(stdin); getchar();
+
 
   for (i=0; i<wc->num_words; i++){
+
     if (wc->table[i]>1){ //--> tengo lista no vacia con mas de 1 sec.
+
       ppunt= wc->nodes[i];
+
       do{
-	paux = ppunt->next;
-	    
-	do { 
-	  //--> no tengo en cuenta palabras repetidas en una sec.
-	  printf("\n [%3d, %3d] ", ppunt->n_seq, paux->n_seq);
-	  printf("\t: %3d ", wc->n_seq);
 
-	  (wc->ta_co[ppunt->n_seq][paux->n_seq])++; 
-	  (wc->ta_co[paux->n_seq] [ppunt->n_seq])++; //-> simetric
+	if(ppunt->next) paux = ppunt->next;
+	else {
+	  printf("\n ERROR en paux = ppunt->next  ");
+	  fflush(stdin); getchar();
+        }
 
-	  printf(" =  %3d ",wc->ta_co[ppunt->n_seq][paux->n_seq]);
-	  // fflush(stdin); getchar();
+	do {
+ 
+	  //--> SI tengo en cuenta palabras repetidas en una sec.
+	  //	  printf("\n [%3d, %3d] = ", ppunt->n_seq, paux->n_seq);
+	
+	  //	  if (ppunt->mult > 1) printf(" [mult_1= %d] ", ppunt->mult);
+	  //	  if (paux->mult  > 1) printf(" [mult_2= %d] ", paux->mult);
+
+	//--> ahora puede ser NO SIMETRICO:
+	  wc->ta_co[ppunt->n_seq][paux->n_seq]=
+	         wc->ta_co[ppunt->n_seq][paux->n_seq] + ppunt->mult; 
+	  wc->ta_co[paux->n_seq] [ppunt->n_seq]= 
+	        wc->ta_co[paux->n_seq] [ppunt->n_seq] + paux->mult; 
+
+	  //	  printf(" %3d ",wc->ta_co[ppunt->n_seq][paux->n_seq]);
+	  //	  printf(" %3d ", wc->ta_co[paux->n_seq][ppunt->n_seq]);
+
+	  //	  printf(" pulsa teclas ...");
+	  //	  fflush(stdin); getchar();
 
 	  paux= paux->next;
 	}
@@ -315,7 +363,8 @@ void wc_table (wc_t *wc){
     }//--> del  IF
   }//---> del FOR
   
-  fflush(stdin); getchar();
+  // fflush(stdin); getchar();
+
   return;
 }
 
@@ -330,11 +379,50 @@ void wc_display_table (wc_t *wc){
      printf("\n");
   }
   printf("\n-------------------------------------\n");
+  return;
+}
+//----------------------------------------------------------
 
+
+void wc_display_table_sss (wc_t *wc, sss_t *sss){
+ int i, j;
+ l_ss_t *p_l_sss;
+
+
+  printf("\n----------------------------------------------");
+
+  printf("\n File input    = %s ", sss->file);
+  printf("\n Number of seq = %d ", sss->n_seq);
+
+  printf("\n----------------------------------------------\n");
+
+  p_l_sss= sss->p_sss; //--> inicio puntero a  estructura de secuencia.
+
+  for (i=0; i<wc->n_seq; i++){
+    printf("\t %s ",p_l_sss->nom_seq);
+    p_l_sss= p_l_sss->next;
+  } 
+
+  printf("\n"); 
+  p_l_sss= sss->p_sss; //--> inicio puntero a  estructura de secuencia.
+  for (i=0; i<wc->n_seq; i++){
+    printf("%s ",p_l_sss->nom_seq);
+    p_l_sss= p_l_sss->next;
+
+    for (j=0; j<wc->n_seq; j++)
+      printf("\t %4d ",wc->ta_co[i][j]);
+    printf("\n");
+  }
+  printf("\n-----------------------------------------------\n");
 
 
 }
 //----------------------------------------------------------
+
+
+
+
+
 
 //----------------------------------------------------------
 // sequence functions
