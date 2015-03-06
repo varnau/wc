@@ -100,6 +100,7 @@ typedef struct l_numss {
   char *sequence; //--> NOT: too much information
   size_t  size_seq;
   size_t  offset;    //--> not used
+  size_t  num;
   struct l_numss *next;
 } l_ss_t;
 // ---------------------------------------------------------------
@@ -155,6 +156,7 @@ int wc_compare_by_index(int idx1, int idx2, wc_t *wc);
 // int  wc_compare_by_id(char *id, char *id, wc_t *wc);
 // wc_cmp_t *wc_full_compare(wc_t *wc);
 wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
+
 
 
 //----------------------------------------------------------

@@ -1,8 +1,9 @@
-#include "wc.h"
 
 //----------------------------------------------------------
 // wc functions
 //----------------------------------------------------------
+
+#include "wc.h"
 
 // ---------------------------------------------------------
 // wc_new: create a data structure
@@ -149,7 +150,7 @@ void wc_update(char *id, char *seq, wc_t *wc, int sequence) {
   //  printf("\n MASCARA = %ld ", MASCARA);
   WORD= wc->k;
 
-  printf("\n SECUENCIA  = %d ", sequence);
+  // printf("\n SECUENCIA  = %d ", sequence);
 
   len1=strlen(seq);
 
@@ -283,12 +284,10 @@ void wc_display(wc_t *wc) {
 
  l_ss_t *n_sec_new(void){
  
-
  }
 
 
  void n_sec_free(l_ss_t *n_sec){
-
 
  }
 
@@ -298,12 +297,124 @@ void wc_display(wc_t *wc) {
 //----------------------------------------------------------
 
 int wc_compare(char *id1, char *id2, wc_t *wc) {
+
+
 }
 
 //----------------------------------------------------------
 
-wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc) {
+int wc_compare_by_index(int index1, int index2, wc_t *wc) {
+
+ l_node_t *ppunt, paux;
+ l_pos_t  *p_pos;
+ int      simi=0;
+ int      i, j, cont=0, linea, analizo=0, normal=0;
+
+ int     *pos1, *pos2, CC;
+
+ printf("\n Busco similitud entre  [%d - %d] = ", index1, index2);
+ printf("   %d \n", wc->ta_co[index1][index2]);
+
+ CC= wc->ta_co[index1][index2];
+ if (CC>1){//--> memory to position array.
+   pos1=(int *) calloc(CC, sizeof(int)); 
+   pos2=(int *) calloc(CC, sizeof(int));
+ }
+
+ cont=0;
+ linea=0;
+ for(i=0; i<wc->num_words; i++){
+   if (wc->table[i]>1){ //--> Have 2 or more sequence by word
+     ppunt= wc->nodes[i];
+     analizo=0; 
+     normal=0;
+     while(ppunt){
+       if ((ppunt->n_seq==index1) || (ppunt->n_seq==index2) ){
+	 analizo++;
+	 normal=normal+ppunt->mult;
+       }
+       ppunt= ppunt->next;
+     }//----> while(ppunt)
+     if (analizo==2){
+       printf("\n%4d: node[%d] : [s-%d , s-%d] n=%d ", linea++, i, index1, index2, normal);
+     
+     }
+
+     //--> apunto parejas de posiciones en las lista de coincidencias:
+     if (analizo==2){ 
+       ppunt= wc->nodes[i];
+       while(ppunt){
+	 if (ppunt->n_seq==index1){
+	   printf("\t mult_1= %d  ", ppunt->mult);
+	   p_pos= ppunt->l_pos;
+
+	   if(normal==2){
+	     pos1[cont]=p_pos->pos;
+	     printf("\tpos_1:\t%d ", p_pos->pos);
+	   }
+	   else {
+	     while(p_pos){
+	       printf("\tp_1:\t%d ", p_pos->pos); 
+	       p_pos=p_pos->next;
+	     }
+	   }
+	 }//--> del if
+
+
+       if (ppunt->n_seq==index2){
+           printf("\t mult_2= %d  ", ppunt->mult);
+           p_pos= ppunt->l_pos;
+
+	 if(normal==2){
+	   pos2[cont]=p_pos->pos;
+	   printf("\tpos_2:\t%d ", p_pos->pos);
+	 }
+	 else {
+	   while(p_pos){
+	     printf("\tp_2:\t%d ", p_pos->pos);
+	     p_pos=p_pos->next;
+	   }
+	 }
+       }//--> del if
+
+       //       if(normal==2) cont++;
+	  
+	 ppunt= ppunt->next;
+       }//----> while(ppunt-2)
+
+       printf("\t cont %d ", cont);
+
+       if(normal==2) cont++;
+
+     }
+
+   }
+ }
+
+ fflush(stdin); getchar();
+
+
+ for (i=0; i<CC; i++)
+   printf("\n%d \t %d",pos1[i], pos2[i]);
+
+ fflush(stdin); getchar();
+
+ free(pos1); free(pos2);
+ return(simi);
 }
+
+
+
+//----------------------------------------------------------
+
+wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc) {
+
+
+
+  }
+
+//----------------------------------------------------------
+
 
 //----------------------------------------------------------
 // wc_table functions:
@@ -318,7 +429,6 @@ void wc_table (wc_t *wc){
   printf("\n Num_words = %ld \n", wc->num_words);
   //  fflush(stdin); getchar();
 
-
   for (i=0; i<wc->num_words; i++){
 
     if (wc->table[i]>1){ //--> tengo lista no vacia con mas de 1 sec.
@@ -326,13 +436,11 @@ void wc_table (wc_t *wc){
       ppunt= wc->nodes[i];
 
       do{
-
 	if(ppunt->next) paux = ppunt->next;
 	else {
 	  printf("\n ERROR en paux = ppunt->next  ");
 	  fflush(stdin); getchar();
         }
-
 	do {
  
 	  //--> SI tengo en cuenta palabras repetidas en una sec.
@@ -390,31 +498,38 @@ void wc_display_table_sss (wc_t *wc, sss_t *sss){
 
 
   printf("\n----------------------------------------------");
-
-  printf("\n File input    = %s ", sss->file);
-  printf("\n Number of seq = %d ", sss->n_seq);
-
+  printf("\n File input = \t%s", sss->file);
+  printf("\n Number of seq = \t%d", sss->n_seq);
   printf("\n----------------------------------------------\n");
 
   p_l_sss= sss->p_sss; //--> inicio puntero a  estructura de secuencia.
+  printf("\t\t");
 
   for (i=0; i<wc->n_seq; i++){
-    printf("\t %s ",p_l_sss->nom_seq);
+     printf("\t%ld ",p_l_sss->num);
+     p_l_sss= p_l_sss->next;
+  }
+
+  printf("\n\t\t");
+  p_l_sss= sss->p_sss; //--> inicio puntero a  estructura de secuencia.
+
+  for (i=0; i<wc->n_seq; i++){
+    printf("\t%s",p_l_sss->nom_seq);
     p_l_sss= p_l_sss->next;
   } 
 
   printf("\n"); 
   p_l_sss= sss->p_sss; //--> inicio puntero a  estructura de secuencia.
   for (i=0; i<wc->n_seq; i++){
-    printf("%s ",p_l_sss->nom_seq);
+    printf("%ld",p_l_sss->num);
+    printf("\t%s",p_l_sss->nom_seq);
     p_l_sss= p_l_sss->next;
 
     for (j=0; j<wc->n_seq; j++)
-      printf("\t %4d ",wc->ta_co[i][j]);
+      printf("\t%4d",wc->ta_co[i][j]);
     printf("\n");
   }
   printf("\n-----------------------------------------------\n");
-
 
 }
 //----------------------------------------------------------

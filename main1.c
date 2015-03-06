@@ -199,7 +199,6 @@ void main(int argc, char *argv[]) {
     // printf("\n....... %s ......", num_secu[secuencia].nom);
 
     // ----> incorporo datos a nueva estructura:
-
     aux = strlen(ss2);
     if (aux){
        p_l_sss = (l_ss_t *) calloc(1, sizeof (l_ss_t)); 
@@ -212,14 +211,18 @@ void main(int argc, char *argv[]) {
              if (secuencia==0){//--> first sequence
 	        sss->n_seq=1;
 	        for (i=0; i<(aux); i++)  p_l_sss->nom_seq[i]= ss2[i];
-		p_l_sss->nom_seq[aux-1]= 0; //--> CR to end to sequence
+		p_l_sss->nom_seq[aux-1]= 0;  //--> CR to end to sequence
+		p_l_sss->num=0;               //--> number of de first sequence
+
 	        printf("\n First sequence =  %s ", p_l_sss->nom_seq);
 		sss->p_sss=p_l_sss;
    	     }
 	     else {//---> add in head of list
                 sss->n_seq++;
 		for (i=0; i<(aux); i++)  p_l_sss->nom_seq[i]= ss2[i];
-		p_l_sss->nom_seq[aux-1]= 0; //--> CR to end to sequence
+		p_l_sss->nom_seq[aux-1]= 0;  //--> CR to end to sequence
+		p_l_sss->num= secuencia;      //--> number of sequence
+
                 // strcpy( p_l_sss->nom_seq, ss2);
 		printf("\n Next  sequence =  %s ", p_l_sss->nom_seq);
                 p_l_sss->next=sss->p_sss;
@@ -233,7 +236,6 @@ void main(int argc, char *argv[]) {
        exit(EXIT_FAILURE);
     }
     
-
     
     // fflush(stdin); getchar();
     
@@ -302,7 +304,6 @@ void main(int argc, char *argv[]) {
   
   fclose(f_in);    //--> close DNA_File (FASTQ file) !!!
 
-    printf("\n");
   // printf("\nSecuencias leidas =  %d \n", secuencia);
   printf("\n Secuencias leidas =  %d \n", sss->n_seq); 
 
@@ -329,7 +330,9 @@ void main(int argc, char *argv[]) {
       //--> update sequence:
       //      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, i);
 
-      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, sss->n_seq-i-1);
+      //--> MAL: tenia que llamarlas al reves, por lo de la insercion en cabeza
+      //  wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, sss->n_seq-i-1);
+      wc_update(p_l_sss->nom_seq, p_l_sss->sequence, wc, p_l_sss->num);
 
       p_l_sss= p_l_sss->next;
     }
@@ -357,6 +360,19 @@ void main(int argc, char *argv[]) {
   printf("\n Llamo a wc_display_table_sss \n");
   fflush(stdin); getchar();
   wc_display_table_sss(wc, sss);
+
+
+  printf ("\n==================================================");
+
+
+  printf("\n Llamo a wc_compare_by_index \n");
+  fflush(stdin); getchar();
+  int  index1, index2;
+  printf("\n Dame los dos indices : ");
+  scanf("%d %d", &index1, &index2);
+
+
+  wc_compare_by_index(index1, index2, wc);
  
   printf ("\n=================================================="); 
 
