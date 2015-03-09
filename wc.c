@@ -397,7 +397,32 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
  for (i=0; i<CC; i++)
    printf("\n%d \t %d",pos1[i], pos2[i]);
 
+ printf("\n-------------------------------------------------------------");
+
  fflush(stdin); getchar();
+
+ //-->> ordeno las posiciones de las palabras:
+
+ ordIns(pos1, pos2, CC);
+
+ int  aux_vell=0, aux=0;
+ for (i=0; i<CC; i++){
+
+
+   aux=  pos1[i]-pos2[i];
+   if (i==0) aux_vell=aux;
+   if (aux!=aux_vell) printf("\n-------------");
+   aux_vell=aux;
+   printf("\n[%3d]  pos1= %d   pos2= %d   dif=%d", 
+         i, pos1[i], pos2[i], pos1[i]-pos2[i]);
+    
+ }
+
+ printf("\n-------------------------------------------------------------");
+
+ fflush(stdin); getchar();
+
+
 
  free(pos1); free(pos2);
  return(simi);
@@ -414,6 +439,28 @@ wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc) {
   }
 
 //----------------------------------------------------------
+
+void ordIns(int *vector1, int *vector2, int n)
+{
+  int i, j, indice1, indice2;
+  for (i=1; i < n; i++)
+    {
+      indice1 = vector1[i];
+      indice2 = vector2[i];
+      for (j=i-1;j >= 0 && vector1[j] > indice1; j--)
+	{
+	  vector1[j + 1] = vector1[j];
+	  vector2[j + 1] = vector2[j];
+	}
+      vector1[j+1] = indice1;
+      vector2[j+1] = indice2;
+    }
+}
+
+
+
+//----------------------------------------------------------
+
 
 
 //----------------------------------------------------------

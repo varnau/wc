@@ -157,6 +157,8 @@ int wc_compare_by_index(int idx1, int idx2, wc_t *wc);
 // wc_cmp_t *wc_full_compare(wc_t *wc);
 wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
 
+void ordIns(int *vector1, int *vector2, int n);
+
 
 
 //----------------------------------------------------------
