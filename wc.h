@@ -168,7 +168,7 @@ void ordIns(int *vector1, int *vector2, int n);
 void  wc_table(wc_t *wc);
 void  wc_display_table(wc_t *wc);
 
-void  wc_display_table_sss(wc_t *wc, sss_t *sss);
+void  wc_display_table_FILE(wc_t *wc, sss_t *sss, FILE *fout);
 
 
 //----------------------------------------------------------

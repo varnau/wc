@@ -357,9 +357,9 @@ void main(int argc, char *argv[]) {
 
   printf ("\n==================================================");
 
-  printf("\n Llamo a wc_display_table_sss \n");
+  printf("\n Llamo a wc_display_table_FILE \n");
   fflush(stdin); getchar();
-  wc_display_table_sss(wc, sss);
+  wc_display_table_FILE(wc, sss, f_out);
 
 
   printf ("\n==================================================");
