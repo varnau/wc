@@ -313,8 +313,6 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
 
  int     *pos1, *pos2, CC, cc_coin;
  int     total_cc=0;
- //-->> para conteo alternativo:
- int    *ppp1, *ppp2;
 
 
  printf("\n Busco similitud entre  [%d - %d] = ", index1, index2);
@@ -325,13 +323,6 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
    pos1=(int *) calloc(CC, sizeof(int)); 
    pos2=(int *) calloc(CC, sizeof(int));
  }
-
-
- if (CC>1){//--> memory to position array.
-   ppp1=(int *) calloc(CC, sizeof(int));
-   ppp2=(int *) calloc(CC, sizeof(int));
- }
-
 
 
  cont=0;
@@ -349,7 +340,7 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
        ppunt= ppunt->next;
      }//----> while(ppunt)
      if (analizo==2){
-       printf("\n%4d: node[%d] : [s-%d , s-%d] coin_total=%d ", linea++, i, index1, index2, normal);
+       // printf("\n%4d: node[%d] : [s-%d , s-%d] coin_total=%d ", linea++, i, index1, index2, normal);
        total_cc= total_cc+normal;
      }
 
@@ -358,16 +349,16 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
        ppunt= wc->nodes[i];
        while(ppunt){
 	 if (ppunt->n_seq==index1){
-	   printf("\t mult_1= %d  ", ppunt->mult);
+	   //printf("\t mult_1= %d  ", ppunt->mult);
 	   p_pos= ppunt->l_pos;
 
 	   if(normal==2){
 	     pos1[cont]=p_pos->pos;
-	     printf("\tpos_1:\t%d ", p_pos->pos);
+	     //printf("\tpos_1:\t%d ", p_pos->pos);
 	   }
 	   else {
 	     while(p_pos){
-	       printf("\tp_1:\t%d ", p_pos->pos); 
+	       //printf("\tp_1:\t%d ", p_pos->pos); 
 	       p_pos=p_pos->next;
 	     }
 	   }
@@ -375,7 +366,7 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
 
 
        if (ppunt->n_seq==index2){
-           printf("\t mult_2=%2d   ", ppunt->mult);
+	 //printf("\t mult_2=%2d   ", ppunt->mult);
            p_pos= ppunt->l_pos;
 
 	 if(normal==2){
@@ -385,7 +376,7 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
 	 else {
 	   while(p_pos){
 	     //printf(".");
-	      printf("\tp_2:\t%d ", p_pos->pos);
+	     // printf("\tp_2:\t%d ", p_pos->pos);
 	 
 	     p_pos=p_pos->next;
 	   }
@@ -397,7 +388,7 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
 	 ppunt= ppunt->next;
        }//----> while(ppunt-2)
 
-       printf("\t cont %d ", cont);
+       //printf("\t cont %d ", cont);
 
        if(normal==2) cont++;
 
@@ -411,16 +402,13 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
  cc_coin= cont; //--> numero de palabras coincidentes solo a pares.
  printf("\n\n Coincidencias =  %d \n", cc_coin);
 
- printf("\n\n Total_coin    =  %d \n", total_cc);
+ // printf("\n\n Total_coin    =  %d \n", total_cc);
 
 
  // for (i=0; i<cc_coin; i++)
  //   printf("\n[%3d]\t %d \t %d",i, pos1[i], pos2[i]);
-
  // printf("\n---------------------------------  <pulsa-tecla>\n");
-
  // fflush(stdin); getchar();
-
  //-->> ordeno las posiciones de las palabras:
 
  ordIns(pos1, pos2, cc_coin);
@@ -439,13 +427,166 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
  }
 
  printf("\n-------------------------------------------------------------");
-
  // fflush(stdin); getchar();
-
 
  free(pos1); free(pos2);
  return(simi);
 }
+
+//------------------------------------------------------------
+//--> ordenamos las palabras presentes en la segunda secuencia
+//--> que suponemos que es el DNA
+//------------------------------------------------------------
+
+int wc_compare_by_index_dna(int index1, int index2, wc_t *wc) {
+
+  l_node_t *ppunt, paux;
+  l_pos_t  *p_pos;
+  int      simi=0;
+  int      i, j, cont=0, linea, analizo=0, normal=0;
+  int  dim=0;      //--> dimension del array de datos
+  int  valor_pos;  //--> posicion palabra en la read
+ 
+ int     *pos1, *pos2, CC, cc_coin;
+ int     total_cc=0, anoto=0;
+
+
+  printf("\n wc_compare_by_index_dna: <pulsa-tecla>  ");
+
+  CC= wc->ta_co[index1][index2]+ wc->ta_co[index2][index1];
+
+  printf("\n Busco similitud entre  [%d - %d] = ", index1, index2);
+  printf("   %d + %d coincidencias (%d). \n", wc->ta_co[index1][index2],
+	 wc->ta_co[index2][index1], CC );
+
+  if (CC>1){//--> memory to position array.
+    pos1=(int *) calloc(CC, sizeof(int)); 
+    pos2=(int *) calloc(CC, sizeof(int));
+  }
+
+  //  fflush(stdin); getchar();
+
+  cont=0;
+  linea=0;
+  dim=0;
+  for(i=0; i<wc->num_words; i++){
+    if (wc->table[i]>=2){ //--> Have 2 or more sequence by word
+
+      ppunt= wc->nodes[i];
+      analizo=0; 
+      normal=0;
+
+      while(ppunt){//--> bucle para saber si estan las dos secuencias.
+	if ((ppunt->n_seq==index1) || (ppunt->n_seq==index2) ){
+	  analizo++;
+	  normal=normal+ppunt->mult;
+	  if (ppunt->n_seq==index2) dim=dim+ppunt->mult;
+	}
+	ppunt= ppunt->next;
+      }//----> while(ppunt)
+
+    
+      //      if (analizo==2){
+      //      	printf("\n%4d: node[%d] : [s-%d , s-%d] coin_total=%d ", linea++, i, index1, index2, normal);
+      // total_cc= total_cc+normal;
+      // }
+
+      //--> Nueva funcion: uso todas las posiciones en el DNA:
+      //--> apunto parejas de posiciones en las lista de coincidencias:
+      if (analizo==2){ 
+	ppunt= wc->nodes[i];
+        anoto=0;
+	while(ppunt){ //--->  primer while para INDEX1
+	  if (ppunt->n_seq == index1){
+	    //printf("\t mult_1= %d  ", ppunt->mult);
+	     p_pos= ppunt->l_pos;
+
+	     if (ppunt->mult==1){
+	        valor_pos= p_pos->pos;
+	        //printf("\tvalor_pos:%3d ", valor_pos);
+	        anoto=1;
+	     }
+	  }//--> del if
+        ppunt = ppunt->next;
+	}//--> del WHILE-1
+
+	//	printf("\n -->  valor_pos:  %d ", valor_pos);
+
+        ppunt= wc->nodes[i];
+
+        while(ppunt){ //--->  Segundo  while para INDEX2
+	  if ((ppunt->n_seq==index2) && (anoto)){
+	    //printf("\t mult_2=%2d   ", ppunt->mult);
+	     p_pos= ppunt->l_pos;
+
+	     while(p_pos){
+		pos2[cont]=p_pos->pos;
+		pos1[cont]=valor_pos;
+		cont++; 
+	       
+		//	printf("\tp_2:\t%d ", p_pos->pos);
+	        p_pos=p_pos->next;
+	     }//--> del while(p_pos)
+	  }//----> while(ppunt-2)
+	  ppunt= ppunt->next;
+
+	}//--> del WHILE-2
+
+      }//--> del IF (ANALIZO==2)
+    }//--> del if (>=2)
+
+  }//--> del FOR
+
+
+  // fflush(stdin); getchar();
+
+  cc_coin= cont; //--> numero de palabras coincidentes solo a pares.
+  printf("\n\n Coincidencias =  %d \n", cc_coin);
+
+  //-->> ordeno las posiciones de las palabras:
+
+  ordIns(pos2, pos1, cc_coin); //--> ordeno con indices cambiados!!
+
+  //===============================================================
+  //========  Muestro resultados en bonito + analisis inteligente:
+  int  aux_vell=0, aux=0;
+  int  www, max_www, max_pos;
+
+  printf("\n-------------------------------------------------------------");
+
+  max_www=0;
+  www=0;
+  for (i=0; i<cc_coin; i++){
+    aux=  pos2[i]-pos1[i];
+    if (i==0) aux_vell=aux;
+    if (aux!=aux_vell){
+      printf("\n-------------");
+      www=0;
+    }
+    else{
+      www++;
+      if (www>max_www){
+	max_pos=pos2[i];
+        max_www=www;
+      }
+    }
+    aux_vell=aux;
+    printf("\n[%3d]  pos2= %d   pos1= %d   dif[2-1]= %d", i, pos2[i], pos1[i], aux);    
+  }
+
+  printf("\n-------------------------------------------------------------");
+  printf("\n--> Final_Max_region = %d ", max_pos);
+  printf("\n--> N_bases = %d + (k-1)",  max_www);
+  printf("\n-------------------------------------------------------------");
+
+  // fflush(stdin); getchar();
+
+  free(pos1); free(pos2);
+  return(simi);
+}
+
+//----------------------------------------------------------
+
 
 
 

@@ -153,6 +153,10 @@ inline int  wc_compare(wc_t *wc) {
 **********/
 
 int wc_compare_by_index(int idx1, int idx2, wc_t *wc);
+
+
+int wc_compare_by_index_dna(int idx1, int idx2, wc_t *wc);
+
 // int  wc_compare_by_id(char *id, char *id, wc_t *wc);
 // wc_cmp_t *wc_full_compare(wc_t *wc);
 wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc);
