@@ -256,7 +256,7 @@ void wc_display(wc_t *wc) {
 
  printf("\n-----------------------------------------------");
  printf("\n K value = %i", wc->k);
- printf("\n Num. words = %ld\n", wc->num_words);
+ printf("\n Num. words = %ld", wc->num_words);
  printf("\n-----------------------------------------------\n");
 
  // int i;
@@ -316,7 +316,7 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
 
 
  printf("\n Busco similitud entre  [%d - %d] = ", index1, index2);
- printf("   %d \n", wc->ta_co[index1][index2]);
+ printf("   %d coincidencias.\n", wc->ta_co[index1][index2]);
 
  CC= wc->ta_co[index1][index2];
  if (CC>1){//--> memory to position array.
@@ -365,16 +365,16 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
 	 }//--> del if
 
 
-       if (ppunt->n_seq==index2){
-	 //printf("\t mult_2=%2d   ", ppunt->mult);
-           p_pos= ppunt->l_pos;
+         if (ppunt->n_seq==index2){
+	  //printf("\t mult_2=%2d   ", ppunt->mult);
+            p_pos= ppunt->l_pos;
 
-	 if(normal==2){
-	   pos2[cont]=p_pos->pos;
-	   printf("\tpos_2:\t%d ", p_pos->pos);
-	 }
-	 else {
-	   while(p_pos){
+	  if(normal==2){
+	     pos2[cont]=p_pos->pos;
+	     // printf("\tpos_2:\t%d ", p_pos->pos);
+ 	  }
+	  else {
+	    while(p_pos){
 	     //printf(".");
 	     // printf("\tp_2:\t%d ", p_pos->pos);
 	 
@@ -391,9 +391,7 @@ int wc_compare_by_index(int index1, int index2, wc_t *wc) {
        //printf("\t cont %d ", cont);
 
        if(normal==2) cont++;
-
      }
-
    }
  }
 
@@ -575,8 +573,9 @@ int wc_compare_by_index_dna(int index1, int index2, wc_t *wc) {
   }
 
   printf("\n-------------------------------------------------------------");
-  printf("\n--> Final_Max_region = %d ", max_pos);
-  printf("\n--> N_bases = %d + (k-1)",  max_www);
+  printf("\n--> Final Max_region = %d ", max_pos);
+  printf("\n--> N_bases = %d + (k-1)= %d ",  max_www, max_www+wc->k-1 );
+  printf("\n--> Initial Max_region = %d ", max_pos- max_www+wc->k-1);
   printf("\n-------------------------------------------------------------");
 
   // fflush(stdin); getchar();
@@ -599,7 +598,8 @@ wc_cmp_t *wc_full_compare(char *id1, char *id2, wc_t *wc) {
   }
 
 //----------------------------------------------------------
-
+// Ordena dos vectores por los valores del primero.
+//--------------------
 void ordIns(int *vector1, int *vector2, int n)
 {
  int i, j, indice1, indice2;
@@ -619,9 +619,7 @@ void ordIns(int *vector1, int *vector2, int n)
 }
 
 
-
 //----------------------------------------------------------
-
 
 
 //----------------------------------------------------------
@@ -737,16 +735,13 @@ void wc_display_table_FILE (wc_t *wc, sss_t *sss, FILE  *fout){
 
   fprintf(fout,"\t");
 
-  for (i=wc->n_seq; i>0;  i--){
+  for (i=0; i<wc->n_seq;  i++){
     fprintf(fout,"\t%d ", i);
   }
 
   fprintf(fout,"\n\t");
-  p_l_sss= sss->p_sss; //--> inicio puntero a  estructura de secuencia.
-
   for (i=0; i<wc->n_seq; i++){
-    fprintf(fout,"\t%s",p_l_sss->nom_seq);
-    p_l_sss= p_l_sss->next;
+    fprintf(fout,"\t%s", names[i]);
   } 
 
 
@@ -764,7 +759,6 @@ void wc_display_table_FILE (wc_t *wc, sss_t *sss, FILE  *fout){
   free(names);
 }
 //----------------------------------------------------------
-
 
 
 
